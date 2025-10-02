@@ -49,7 +49,7 @@ real_data_flat = scaled
 
 print("Scaled failed_logins series range:", tf.reduce_min(scaled), tf.reduce_max(scaled))
 
-```python
+
 # WGAN-GP (corrected, ready-to-run)
 # - Corrects Conv1D input shapes (adds channel dim)
 # - Computes gradient penalty per-sample and averages it (correct math)
