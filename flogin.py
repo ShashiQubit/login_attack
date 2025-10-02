@@ -303,7 +303,7 @@ class WGAN_GP(tf.keras.Model):
 # # Prepare your data: y_scaled is 1D numpy array of scaled values from log1p + MinMax
 window = 30
 from numpy.lib.stride_tricks import sliding_window_view
-windows = sliding_window_view(y_scaled, window_shape=window)
+windows = sliding_window_view(scaled, window_shape=window)
 gan_dataset = tf.data.Dataset.from_tensor_slices(windows.astype(np.float32))
 
 model = WGAN_GP(window_size=window, latent_dim=8, n_critic=5, gp_weight=10.0)
