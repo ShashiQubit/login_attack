@@ -56,26 +56,35 @@ if gpus:
 
 
 
-# Load the data from the saved CSV file with a standard single-level header
+import pandas as pd
 
-iio = pd.read_csv('iio.csv', parse_dates=['timestamp'])
-iio.sort_values('timestamp', inplace=True)
-iio.drop_duplicates(subset='timestamp', inplace=True)
-iio['value'] = pd.to_numeric(iio['value'], errors='coerce')
-iio.dropna(subset=['value'], inplace=True)
-# optional resample to daily: iio = iio.set_index('timestamp').resample('D').mean().dropna().reset_index()
-start_date = '2013-10-11'
-iio_sliced = iio[iio['timestamp'] >= start_date].copy()
+# Load the data from the saved CSV file with a standard single-level header
+# Changed filename, removed parse_dates as 'time_index' is not a date
+iio = pd.read_csv('failed_logins_first_500.csv')
+
+# Sort and drop duplicates on the time_index column
+iio.sort_values('time_index', inplace=True)
+iio.drop_duplicates(subset='time_index', inplace=True)
+
+# Convert 'failed_logins' to numeric and drop NaNs
+iio['failed_logins'] = pd.to_numeric(iio['failed_logins'], errors='coerce')
+iio.dropna(subset=['failed_logins'], inplace=True)
+
+# optional resample to daily: iio = iio.set_index('time_index').resample('D').mean().dropna().reset_index()
+# Changed start_date to start_index and column from 'timestamp' to 'time_index'
+start_index = 0  # Start from index 0 to include all data
+iio_sliced = iio[iio['time_index'] >= start_index].copy()
 
 
 print(f"Sliced total rows: {len(iio_sliced)}")
-print(f"Sliced date range: {iio_sliced['timestamp'].min()} to {iio_sliced['timestamp'].max()}")
+print(f"Sliced index range: {iio_sliced['time_index'].min()} to {iio_sliced['time_index'].max()}")
 print("-" * 40)
 
 
+
 # The rest of your code now operates on the SLICED data
-iio_values = iio_sliced['value'].values.astype(np.float64)
-date = iio_sliced['timestamp']
+iio_values = iio_sliced['failed_logins'].values.astype(np.float64)
+date = iio_sliced['time_index']
 
 # Convert the numeric 'value' column to a TensorFlow tensor
 iio_close = tf.convert_to_tensor(iio_values, dtype=tf.float64)
@@ -118,66 +127,6 @@ plt.title('iio Index')
 
 #plt.savefig("plots/raw_series_of_iio (WGAN).svg", format="svg")
 #plt.close()
-
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-
-# Set the start date for slicing, same as before
-start_date = '2013-10-11'
-
-try:
-    # --- 1. Load and process the original data ---
-    iio_original = pd.read_csv('iio.csv', parse_dates=['timestamp'])
-    iio_original.sort_values('timestamp', inplace=True)
-    iio_original.drop_duplicates(subset='timestamp', inplace=True)
-    iio_original['value'] = pd.to_numeric(iio_original['value'], errors='coerce')
-    iio_original.dropna(subset=['value'], inplace=True)
-
-    # --- 2. Create the sliced data ---
-    iio_sliced = iio_original[iio_original['timestamp'] >= start_date].copy()
-
-    print("Data loaded and processed successfully.")
-    print(f"Original series starts on: {iio_original['timestamp'].min()}")
-    print(f"Sliced series starts on:   {iio_sliced['timestamp'].min()}")
-
-    # --- 3. Create the overlay plot ---
-    fig, ax = plt.subplots(figsize=(14, 7))
-
-    # Plot the full original series in a semi-transparent blue
-    ax.plot(iio_original['timestamp'], iio_original['value'], label='Original Series', color='skyblue', alpha=0.9)
-
-    # Plot the sliced series on top in a solid, slightly thinner red line
-    ax.plot(iio_sliced['timestamp'], iio_sliced['value'], label=f'Sliced Series (from {start_date})', color='red', linewidth=1.5)
-
-    # Add a vertical dashed line to clearly mark the cut-off point
-    ax.axvline(pd.to_datetime(start_date), color='black', linestyle='--', linewidth=1.5, label=f'Cut-off: {start_date}')
-
-    # --- 4. Formatting the plot for clarity ---
-    ax.set_title('Overlay of Original vs. Sliced Time Series', fontsize=16)
-    ax.set_xlabel('Timestamp', fontsize=12)
-    ax.set_ylabel('Value', fontsize=12)
-    ax.legend(fontsize=10)
-    ax.grid(True, which='both', linestyle='--', linewidth=0.5)
-
-    # Improve date formatting on the x-axis for readability
-    fig.autofmt_xdate()
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-
-    plt.tight_layout()
-
-    # Save the figure to a file
-    output_filename = 'overlay_plot.png'
-    plt.savefig(output_filename)
-
-    print(f"\nPlot saved successfully as '{output_filename}'")
-
-except FileNotFoundError:
-    print("Error: The file 'iio.csv' could not be found.")
-except Exception as e:
-    print(f"An error occurred: {e}")
-
-len(iio_sliced)
 
 """The iio index is clearly in an uptrend over the years. This is logical, as it kind of measures the overall performance between 500 most successful companies in the U.S. It's current value is more than 8000% up from the value in the early 60s and 70s.
 
@@ -1064,7 +1013,7 @@ LATENT_DIM = 8
 WINDOW_SIZE = 30
 
 # training hyperparameters
-EPOCHS = 1000 #3000
+EPOCHS = 500 #3000
 BATCH_SIZE = 32
 
 n_critic = 5 # number of iterations for the critic per epoch
