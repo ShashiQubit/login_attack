@@ -300,7 +300,7 @@ model = WGAN_GP(window_size=window, latent_dim=8, n_critic=5, gp_weight=10.0)
 model.compile(c_optimizer=tf.keras.optimizers.Adam(1e-4),
               g_optimizer=tf.keras.optimizers.Adam(1e-4))
 history = model.train_wgan_gp(gan_dataset, preprocessed_data_flat=y_scaled,
-                           epochs=2, batch_size=32, eval_num_samples=20000,
+                           epochs=200, batch_size=32, eval_num_samples=20000,
                             verbose=True, checkpoint_prefix="checkpoints/wgan")
 
 
