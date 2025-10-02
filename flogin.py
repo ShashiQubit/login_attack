@@ -46,6 +46,7 @@ scaled_failed_logins = scaler.transform(y.reshape(-1,1)).flatten()
 # Convert to TensorFlow tensor
 scaled = tf.convert_to_tensor(scaled_failed_logins)
 real_data_flat = scaled
+y_scaled = scaled
 
 print("Scaled failed_logins series range:", tf.reduce_min(scaled), tf.reduce_max(scaled))
 
