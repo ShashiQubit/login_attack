@@ -145,7 +145,7 @@ The logarithmic returns have some special properties that we wish to exploit, wh
 iio_direct_r = iio_close[1:] - iio_close[:-1]
 
 # logarithmic returns over time
-iio_log_r = np.log(iio_close[1:]) - np.log(iio_close[:-1])
+iio_log_r = np.log(iio_close[1:]+1) - np.log(iio_close[:-1]+1)
 
 # plot the graphs side-by-side
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10,4))
